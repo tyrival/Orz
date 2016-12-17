@@ -1,0 +1,10 @@
+{
+  "Orz.Abstract": { "url": "abstract/Abstract.js", "lazy": false },
+  "Orz.Base": { "url": "base/Base.js", "lazy": false },
+  "Orz.Component": { "url": "component/Component.js", "lazy": false },
+  "Orz.Store": { "url": "store/Store.js", "lazy": false },
+  "Orz.Container": { "url": "container/Container.js", "lazy": false },
+  "Orz.Layout": { "url": "layout/Layout.js", "lazy": false },
+  "Orz.Grid": { "url": "grid/Grid.js", "lazy": true },
+  "Orz.Browser": { "url": "utils/Browser.js", "lazy": false }
+}

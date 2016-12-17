@@ -1,0 +1,2 @@
+Orz.define("Orz.Abstract", {
+});
