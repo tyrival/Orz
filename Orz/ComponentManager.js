@@ -142,6 +142,9 @@ Orz.ComponentManager = {
     define: function (klass, config) {
         config["klass"] = klass;
         var extend = config["extend"];
+        if (Orz.ClassManager.stack[klass]) {
+            throw new Error("类")
+        }
         Orz.ClassManager.stack[klass] = function () {
         };
         if (extend) {
@@ -161,9 +164,17 @@ Orz.ComponentManager = {
         var config = arguments[1] ? arguments[1] : {};
         config["klass"] = klass;
         var decendants = Orz.ComponentManager._getDescendantsLoadList(config);
-        Orz.ComponentManager._loadDescendants(decendants, klass, config, function (klass, config) {
-            return Orz.ComponentManager._doCreate(klass, config);
-        });
+        Orz.ComponentManager._loadDescendants(decendants, klass, config);
+        return Orz.ComponentManager._doCreate(klass, config);
+    },
+
+    /**
+     * 重写类，修改已经存在的类的属性
+     * @param klass
+     * @param config
+     */
+    override: function (klass, config) {
+        // TODO
     },
 
     _doCreate: function (klass, config) {
@@ -196,11 +207,11 @@ Orz.ComponentManager = {
             } else {
                 storeId = store;
             }
-            Orz.DataBindManager.register(storeId, cmpId);
+            Orz.DataBindManager.register(cmpId, storeId);
         }
 
         /* 根据配置生成html代码 */
-        component._doGenerateHtml();
+        component.init();
 
         /* 根据配置情况装载代码 */
         if (!component["isSubItem"]) {
@@ -239,14 +250,13 @@ Orz.ComponentManager = {
      * @param loadList
      * @private
      */
-    _loadDescendants: function (loadList, klass, config, callback) {
+    _loadDescendants: function (loadList, klass, config) {
         if (!loadList || loadList.length <= 0) {
-            callback(klass, config);
+            return;
         } else {
             var path = loadList.shift();
-            $LAB.script(path).wait(function (loadList) {
-                Orz.ComponentManager._loadDescendants(loadList, klass, config, callback);
-            })
+            Orz.JsLoader.sync(path);
+            Orz.ComponentManager._loadDescendants(loadList, klass, config, callback);
         }
     },
 

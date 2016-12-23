@@ -38,7 +38,7 @@ var myGrid = Orz.create("Orz.Grid", {
         beforeRender: function (grid) { 
             // 装载前事件
         },
-        afterReload: function (grid, store) {
+        afterLoad: function (grid, store) {
             // 重新加载数据后事件
         }
     }
@@ -51,7 +51,7 @@ myGrid.render("myDiv2");
 myGrid.getStore().setUrl("user_list2.html");
 
 // 重载Store，myGrid的展示数据随之变化
-myGrid.getStore().reload();
+myGrid.getStore().load();
 ```
 
 PS: 属性、方法、事件等命名借用ExtJS，懒得想了，相当于对ExtJS的接口做了简易实现。

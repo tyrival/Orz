@@ -1,0 +1,23 @@
+.scrollable {
+    overflow: auto;
+}
+.scrollable-x {
+    overflow-x: auto;
+}
+.scrollable-y {
+    overflow-y: auto;
+}
+
+.show {
+    display: block;
+}
+.hide {
+    display: none;
+}
+
+.visible {
+    visibility: visible;
+}
+.no-visible {
+    visibility: hidden;
+}

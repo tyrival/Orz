@@ -2,10 +2,10 @@
   "AppContext": "/Orz",
   "Package": "Orz",
   "Require": [
-    "ExtendIE.js",
-    "ComponentLoader.js",
+    "common/IEExtend.js",
     "ClassManager.js",
     "ComponentManager.js",
-    "DataBindManager.js"
+    "DataBindManager.js",
+    "ComponentLoader.js"
   ]
 }

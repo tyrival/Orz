@@ -6,5 +6,8 @@
   "Orz.Container": { "url": "container/Container.js", "lazy": false },
   "Orz.Layout": { "url": "layout/Layout.js", "lazy": false },
   "Orz.Grid": { "url": "grid/Grid.js", "lazy": true },
-  "Orz.Browser": { "url": "utils/Browser.js", "lazy": false }
+  "Orz.Array": { "url": "utils/Array.js", "lazy": false },
+  "Orz.Browser": { "url": "utils/Browser.js", "lazy": false },
+  "Orz.Date": { "url": "utils/Date.js", "lazy": false },
+  "Orz.String": { "url": "utils/String.js", "lazy": false }
 }

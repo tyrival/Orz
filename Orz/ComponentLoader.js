@@ -36,7 +36,7 @@ Orz.ComponentLoader = {
                 for (var i = 0; i < className.length; i++) {
                     var config = Orz.ComponentLoader.componentsStack[className[i]];
                     if (config["lazy"] !== true && (!config["loaded"] || true !== config["loaded"])) {
-                        $LAB.script(Orz.Application.Package + "/" + config["url"]).wait();
+                        Orz.JsLoader.sync(Orz.Application.Package + "/" + config["url"]);
                         loadedList = loadedList + className[i] + ",";
                         config["loaded"] = true;
                     }

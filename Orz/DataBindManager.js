@@ -11,23 +11,42 @@ Orz.DataBindManager = {
 
     stack: {},
 
-    register: function (storeId, cmpId) {
-        Orz.DataBindManager.stack[storeId] = cmpId;
+    register: function (cmpId, storeId) {
+        Orz.DataBindManager.stack[cmpId] = storeId;
     },
 
-    unregister: function (storeId) {
-        return Orz.DataBindManager.stack[storeId];
+    unregister: function (cmpId) {
+        var storeId = Orz.DataBindManager.stack[cmpId]
+        delete Orz.DataBindManager.stack[cmpId];
+        return storeId;
     },
 
-    unregisterByCmpId: function (id) {
-        var storeIdList = Object.getOwnPropertyNames(Orz.DataBindManager.stack);
-        for(var i = 0; i < storeIdList.length; i++) {
-            var storeId = storeIdList[i];
-            var cmpId = Orz.DataBindManager.stack[storeId];
-            if (id == cmpId) {
-                delete Orz.DataBindManager.stack[storeId];
-                return storeId;
+    unregisterByStoreId: function (storeId) {
+        var cmpIdList = Object.getOwnPropertyNames(Orz.DataBindManager.stack);
+        for(var i = 0; i < cmpIdList.length; i++) {
+            var cmpId = cmpIdList[i];
+            var sid = Orz.DataBindManager.stack[cmpId];
+            if (storeId == sid) {
+                delete Orz.DataBindManager.stack[cmpId];
+                return cmpId;
             }
         }
+    },
+
+    getStoreIdByCmpeId: function (cmpId) {
+        return Orz.DataBindManager.stack[cmpId];
+    },
+
+    getCmpIdListByStoreId: function (storeId) {
+        var list = [];
+        var cmpIdList = Object.getOwnPropertyNames(Orz.DataBindManager.stack);
+        for(var i = 0; i < cmpIdList.length; i++) {
+            var cmpId = cmpIdList[i];
+            var sid = Orz.DataBindManager.stack[cmpId];
+            if (storeId == sid) {
+                list.push(cmpId);
+            }
+        }
+        return list;
     }
 };
