@@ -23,14 +23,14 @@ Orz.Array = {
             /* 按指针获取规则，并对规则验证 */
             var rule = rules[i];
             var result;
-            if (!rule instanceof Function) {
+            if (typeof rule == "object") {
                 var keys = Object.getOwnPropertyNames(rule)
                 if (!keys || !keys[0]) {
                     throw new Error("排序参数定义错误，格式为 { \"数组元素的属性名\" : \"ASC/DESC\" }")
                 }
                 var prop = keys[0];
                 var order = rule[prop] || "ASC";
-                if (order != "ASC" || order != "DESC") {
+                if (order != "ASC" && order != "DESC") {
                     throw new Error("排序规则错误，只可为\"ASC\"或\"DESC\"。");
                 }
                 var param = order === "ASC" ? 1 : -1;

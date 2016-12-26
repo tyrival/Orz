@@ -3,9 +3,10 @@ Orz.define("Orz.Store", {
 
     /* ===================================== Config ========================================= */
 
-    data: null,
+    autoLoad: false,  // 创建实例是自动加载数据，默认：false
 
-    storageMap: null,
+    data: null,  // 数据对象
+    storageMap: null,  // Map存储对象 $id : object
 
     /**
      * pageSize <= 0 : 不分页
@@ -18,10 +19,11 @@ Orz.define("Orz.Store", {
     pageTotal: 1,
     total: 0,
 
-    autoLoad: false,
-
     /**
-     * field: [ { name: "id", mapper: "id" / function(item) { return data; }, type: string, defaultValue: value }, ...]
+     * field: 数据对象属性映射方式
+     * 格式：[ { name: "id", mapper: "id" / function(item) { return data; }, type: string, defaultValue: value }, ...]
+     *
+     * idProperty：内置id所对应的属性，该属性不能强转为boolean时，才可做为内置id，否则内置id自动生成
      */
     model: {
         fields: [],
@@ -96,21 +98,21 @@ Orz.define("Orz.Store", {
             async: this.proxy.async,
             data: params,
             beforeSend: function (xmlHttpRequest) {
-                me.beforeSync(xmlHttpRequest, me);
+                me.listeners.beforeSync(xmlHttpRequest, me);
             },
             success: function (data, status, xmlHttpRequest) {
 
                 /* 解析返回值 */
                 me._parseData(data, me);
 
+                /* 格式化数据 */
+                me._formatData(me);
+
                 /* 过滤 */
                 me._doFilter(me);
 
                 /* 排序 */
                 me._doSort(me);
-
-                /* 格式化数据 */
-                me._formatData(me);
 
                 /* 更新map */
                 me._setStorageMap(me);
@@ -119,14 +121,14 @@ Orz.define("Orz.Store", {
                 me._updateView(me);
 
                 /* event */
-                me.afterSync(me)
+                me.listeners.afterSync(me)
 
             },
             error: function (data, status, xmlHttpRequest) {
-                me.afterSync(data, status, xmlHttpRequest, me)
+                me.listeners.afterSync(data, status, xmlHttpRequest, me)
             },
             complete: function (xmlHttpRequest) {
-                me.afterLoad(me)
+                me.listeners.afterLoad(me)
             }
         })
 
@@ -144,10 +146,9 @@ Orz.define("Orz.Store", {
         var pageTotalProp = response.pageTotalProp;
         var dataRoot = response.dataRoot;
 
-        var result = $.parseJSON(data);
-        var items = store._getValueByPropChain(result, dataRoot);
-        var total = parseInt(store._getValueByPropChain(result, totalProp));
-        var pageTotal = parseInt(store._getValueByPropChain(result, pageTotalProp));
+        var items = store._getValueByPropChain(data, dataRoot);
+        var total = parseInt(store._getValueByPropChain(data, totalProp)) || 0;
+        var pageTotal = parseInt(store._getValueByPropChain(data, pageTotalProp)) || 1;
         pageTotal = pageTotal == 0 ? 1 : pageTotal;
 
         store.total = total;
@@ -172,7 +173,6 @@ Orz.define("Orz.Store", {
         for (var j = 0; j < items.length; j++) {
             var item = items[j];
             var obj = {};
-            var id = null;
             for (var i = 0; i < fields.length; i++) {
                 var field = fields[i];
                 var name = field["name"];
@@ -180,23 +180,23 @@ Orz.define("Orz.Store", {
                 var type = field["type"];
                 var defaultValue = field["defaultValue"];
                 var value;
-                if (mapper instanceof String) {
+                if (typeof mapper == "string") {
                     value = item[mapper];
-                } else if (mapper instanceof Function) {
+                } else if (typeof mapper == "function") {
                     value = mapper(item);
                 } else {
                     throw new Error(store.klass + "的第" + i + "项属性设置错误。");
                 }
-                obj["name"] = name;
-                obj["type"] = type;
-                value = store._convertDataType(value, type);
-                obj["value"] = value || defaultValue;
-
-                if (name == idProperty) {
-                    id = obj["value"];
-                }
+                value = value || defaultValue;
+                obj[name] = store._convertDataType(value, type);
             }
-            obj["$id"] = id || Orz.String.uuid();
+            if (obj[idProperty] || obj[idProperty] === true || obj[idProperty] === false) {
+                obj["$id"] = Orz.String.uuid();
+            } else if (!isNaN(Number(obj[idProperty]))) {
+                obj["$id"] = "$id_" + obj[idProperty];
+            } else {
+                obj["$id"] = obj[idProperty];
+            }
             arr.push(obj);
         }
         store.data = arr;
@@ -212,13 +212,13 @@ Orz.define("Orz.Store", {
     _convertDataType: function (data, type) {
         switch (type) {
             case "string":
-                return new String(data)
+                return String(data);
             case "number":
-                return new Number(data);
+                return Number(data);
             case "date":
                 return Orz.Date.parse(data);
             case "boolean":
-                return new Boolean(data)
+                return Boolean(data);
             case "integer":
                 return parseInt(data);
             case "float":
@@ -236,6 +236,9 @@ Orz.define("Orz.Store", {
      * @private
      */
     _getValueByPropChain: function (data, prop) {
+        if (!prop || prop == "") {
+            return data;
+        }
         var propArray = prop.split(".");
         var tmp = data;
         for (var i = 0; i < propArray.length; i++) {
@@ -273,7 +276,7 @@ Orz.define("Orz.Store", {
                 }
             }
             if (!pass) {
-                break;
+                continue;
             }
             arr.push(item);
         }
@@ -302,6 +305,7 @@ Orz.define("Orz.Store", {
      */
     _setStorageMap: function () {
         var store = arguments[0] || this;
+        store.storageMap = store.storageMap || {};
         var data = store.data;
         for (var i = 0; i < data.length; i++) {
             var obj = data[i];

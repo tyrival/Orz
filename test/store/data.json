@@ -1,8 +1,12 @@
-[
-  { "id": 1, "name": "tom", "age": 25, "sex": "male" },
-  { "id": 2, "name": "jerry", "age": 32, "sex": "male" },
-  { "id": 3, "name": "jerry", "age": 15, "sex": "male" },
-  { "id": 4, "name": "mary", "age": 25, "sex": "female" },
-  { "id": 5, "name": "gerald", "age": 65, "sex": "male" },
-  { "id": 6, "name": "susan", "age": 11 }
-]
+{
+  "total": 6,
+  "totalPage": 1,
+  "list": [
+    { "id": 1, "name": "tom", "age": 25, "sex": "male" },
+    { "id": 2, "name": "jerry", "age": 32, "sex": "male" },
+    { "id": 3, "name": "jerry", "age": 15, "sex": "male" },
+    { "id": 4, "name": "mary", "age": 25, "sex": "female" },
+    { "id": 5, "name": "gerald", "age": 65, "sex": "male" },
+    { "id": 6, "name": "susan", "age": 11 }
+  ]
+}
