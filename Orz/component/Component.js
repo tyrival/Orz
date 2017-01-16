@@ -11,7 +11,7 @@ Orz.define("Orz.Component", {
 
     style: null,  // dom的style属性
 
-    display: false,  // 是否显示（不占位）
+    display: true,  // 是否显示（不占位）
 
     visibility: true,  // 是否显示（占位）
 
@@ -43,9 +43,13 @@ Orz.define("Orz.Component", {
     setStore: function (store) {
         var isChange = store != this.store;
         if (isChange) {
-            this.listeners.beforeChange(this);
+            if (typeof(this.listeners.beforeChange) == 'function') {
+                this.listeners.beforeChange(this);
+            }
             this.store = store;
-            this.listeners.afterChange(this);
+            if (typeof(this.listeners.afterChange) == 'function') {
+                this.listeners.afterChange(this);
+            }
             if (!this.store || this.store.getAutoLoad()) {
                 if (this.store) {
                     this.store.load();
@@ -63,9 +67,13 @@ Orz.define("Orz.Component", {
     setData: function (data) {
         var isChange = data != this.data;
         if (isChange) {
-            this.listeners.beforeChange(this);
+            if (typeof(this.listeners.beforeChange) == 'function') {
+                this.listeners.beforeChange(this);
+            }
             this.data = data;
-            this.listeners.afterChange(this);
+            if (typeof(this.listeners.afterChange) == 'function') {
+                this.listeners.afterChange(this);
+            }
             this.init();
             this.render();
         }
@@ -242,7 +250,9 @@ Orz.define("Orz.Component", {
             return;
         }
 
-        this.listeners.beforeRender(this);
+        if (typeof(this.listeners.beforeRender) == 'function') {
+            this.listeners.beforeRender(this);
+        }
 
         /* 获取渲染位置 */
         var renderTo = this.renderTo;
@@ -270,7 +280,10 @@ Orz.define("Orz.Component", {
                 } else {
                     $("#" + renderInner).after(this.html);
                 }
-                this.listeners.afterRender(this);
+
+                if (typeof(this.listeners.afterRender) == 'function') {
+                    this.listeners.afterRender(this);
+                }
                 return;
             }
         }
@@ -284,11 +297,15 @@ Orz.define("Orz.Component", {
             if (!renderEle) {
                 throw new Error("未找到页面的body元素。")
             } else {
-                $(renderEle).append(this.html);
                 console.warn("未找到ID为" + renderTo + "的组件或DOM元素，" + this.klass + " { id : " + this.id + " }" + "被附加到body末尾");
             }
+        }else {
+            $(renderEle).append(this.html);
         }
-        this.listeners.afterRender(this);
+
+        if (typeof(this.listeners.afterRender) == 'function') {
+            this.listeners.afterRender(this);
+        }
         return;
     },
 
@@ -303,16 +320,22 @@ Orz.define("Orz.Component", {
      * 生成html代码，用于系统调用
      */
     init: function () {
-        this.listeners.beforeInit(this);
+        if (typeof(this.listeners.beforeInit) == 'function') {
+            this.listeners.beforeInit(this);
+        }
         this.generateHtml();
-        this.listeners.afterInit(this);
+        if (typeof(this.listeners.afterInit) == 'function') {
+            this.listeners.afterInit(this);
+        }
     },
 
     /**
      * 销毁
      */
     destroy: function () {
-        this.beforeDestroy(this);
+        if (typeof(this.listeners.beforeDestroy) == 'function') {
+            this.listeners.beforeDestroy(this);
+        }
 
         var eleId = this.getId();
         var ele = document.getElementById(eleId);
@@ -336,7 +359,9 @@ Orz.define("Orz.Component", {
         // 注销组件本身
         Orz.ComponentManager.unregister(eleId);
 
-        this.afterDestroy(this);
+        if (typeof(this.listeners.afterDestroy) == 'function') {
+            this.listeners.afterDestroy(this);
+        }
     },
 
     /*  private method  */
@@ -371,7 +396,11 @@ Orz.define("Orz.Component", {
      * @private
      */
     _getCompositeStyle: function () {
-        return "width: " + this.width + "px; height: " + this.height + "px; margin: " + this.margin + "; padding: " + this.padding;
+        var width = this.width ? "width: " + this.width : "";
+        width = typeof(this.width) == "string" ? width + ";" : width + "px;";
+        var height = this.height ? "height: " + this.height : "";
+        height = typeof(this.height) == "string" ? height + ";" : height + "px;";
+        return  width + height + " margin: " + this.margin + "; padding: " + this.padding + ';' + this.getStyle() + ";";
     },
 
     /**
@@ -388,7 +417,7 @@ Orz.define("Orz.Component", {
             case true:
                 return "scrollable";
             default:
-                return null;
+                return '';
         }
     },
 

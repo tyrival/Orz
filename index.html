@@ -19,10 +19,250 @@
     <link rel="stylesheet" href="Orz/css/Orz.css">
     <script src="OrzBoot.js"></script>
 
+
     <!-- 测试脚本-->
     <script src="test/store/StoreTest.js"></script>
+    <style>
+        .renderDiv {
+            border: 1px solid #a4a4a4;
+            height:150px;
+            width:50%
+        }
+        .orig {
+            border: 1px solid #0f0f0f;
+
+        }
+    </style>
 </head>
 <body>
 
+<div class="container-fluid">
+    <h4>框架说明：</h4>
+    <p>Orz为框架的命名空间，后续可以修改为Ocn等。语法糖主要是Orz.define和Orz.create，分别用来定义模块和实例化模块。</p>
+    <p>框架是准备做成model-view-controller的架构：</p>
+    <p>view：对模块的定义、继承、实例化和二次开发等功能已基本完成，后续基本是对项目所需的模块进行抽象和开发。</p>
+    <p>controller：定义在view中，这样调试起来比较直观，比如后续案例3。当然，后续如果有需要，也可拆分，以便于controller的重用。</p>
+    <p>model: 负责与后端的数据交互和数据绑定，并根据配置（或默认配置）对数据进行解析，使后台json解析为前端的对象，从而与view绑定。目前已基本实现了与后端交互和解析数据的Orz.Store类，例如：将后端的User</p>
+    <pre>{ "id": 4, "name": "mary", "age": 25, "sex": "female" },</pre>
+    <p>通过配置</p>
+    <pre>
+    model: {
+        fields: [
+            {name: "id", mapper: "id", type: "number"},
+            {name: "name", mapper: "name", type: "string"},
+            {
+                name: "age",
+                mapper: function (item) {
+                    return item["age"] + 10;  // 年龄瞬间大10岁
+                },
+                type: "number"
+            },
+            {name: "sex", mapper: "sex", type: "string", defaultValue: "les"},
+        ],
+        idProperty: "id"
+    },
+    </pre>
+    <p>解析为前端的</p>
+    <pre>
+    {
+        id: 4
+        name: "mary"
+        age: 35
+        sex:" female"
+    }
+    </pre>
+    <p>/test/store/StoreTest.js 中有部分测试代码，定义了一个个性化的Store，其中还配置了客户端排序和过滤数据的功能。</p>
+    <p>实例化后，与后端交互取得数据，解析为对象数组。实例化对象为testStore，可以在控制台中查看其属性，大致如下</p>
+    <pre>
+    data: Array[4]      // 数据以数组形式存储
+    id: "UserStore-1"    // store实例流水号id
+    klass: "UserStore"  // 组件类名
+    pageTotal: 1        // 分页的总页数
+    storageMap: Object  // 数据以map形式存储
+    total: 4            // 数据总条数
+    </pre>
+    <p>由于表格组件Grid还没时间做，所以Store与组件的数据绑定还没能测试，不过这部分功能不复杂，所以只要Grid成型，基本就能展示了。</p>
+    <br>
+
+    <h4>后续发展</h4>
+    <p>现在基本就可以进行模块开发了，至于模块粒度是组件、模板，还是页面，本质上是一样的，就是抽象成对象，然后通过配置实例化。</p>
+    <p>后续积累一定数量的可用模块后，就可以基于这些模块的属性来做GUI的配置界面，从而使前端页面的开发门槛降低，使实施人员也可以在框架基础上做前端开发了。</p>
+    <br>
+
+    <h4>演示开始</h4>
+    <p>demo中暂未加入bootstrap的样式，框架只依赖于jquery，页面顶部引入Orz.css和OrzBoot.js，OrzBoot.js用于启动整个框架。</p>
+    <p>此页面加载完成后，可以看到浏览器控制台中提示：</p>
+    <pre>
+    // JS加载引擎加载了框架自带的必要组件和辅助类，非必要组件不加载，后续需要时动态引入
+    Javascript LoadEngine: Orz.Abstract,Orz.Base,Orz.Component,Orz.Store,Orz.Container,Orz.Layout,Orz.Array,Orz.Browser,Orz.Date,Orz.String loaded success
+    // JS加载引擎加载了框架的各核心模块
+    Javascript LoadEngine: common/IEExtend.js,ClassManager.js,ComponentManager.js,DataBindManager.js,ComponentLoader.js loaded.
+    </pre>
+    <p>这里的加载都是根据配置文件动态引入的，因为各模块之间有顺序关系，所以是同步加载，而不是异步，这个和页面加载不同。</p><br>
+    <p>1. 由于只完成了框架，组件基本没动，所以临时写了一个Container组件，用来演示，首先实例化一个Container</p>
+    <pre>
+    Orz.create("Orz.Container", {
+        itemsHtml: "我是一个Container实例",
+        cls: "orig",  // 定义一个边框样式
+        renderTo: "con1",  // 装载到id为con1的dom元素中
+        width: '50%',
+        height: 50,
+        margin: "10px 0 10px 10px"
+    })
+    </pre>
+    <button class="btn btn-primary" onclick="btn1()">点击实例化一个Container</button>
+
+    <div id="con1" class="renderDiv">
+        id=con1元素
+    </div>
+    <br>
+    <p>2. 下面演示Container的items属性，items属性表示此组件内部还可嵌套其他组件</p>
+    <pre>
+    Orz.create("Orz.Container", {
+        cls: "orig",
+        renderTo: "con2",
+        width: '80%',
+        height: 100,
+        margin: "10px 0 10px 10px",
+        items: [{
+            klass: "Orz.Container",
+            cls: "orig",
+            width: '80%',
+            height: 20,
+            margin: "10px",
+            itemsHtml: "我是一个内层Container",
+        }, {
+            klass: "Orz.Container",
+            cls: "orig",
+            width: '80%',
+            height: 20,
+            margin: "10px",
+            itemsHtml: "我是另一个内层Container",
+        }, ]
+    })
+    </pre>
+    <button class="btn btn-primary" onclick="btn2()">点击实例化一个嵌套Container</button>
+    <div id="con2" class="renderDiv">
+        id=con2元素
+    </div>
+    <br>
+    <p>3. 下面是组件对外暴露事件的接口，此处以afterRender为例，演示Container渲染完成后触发的事件</p>
+    <pre>
+    Orz.create("Orz.Container", {
+        itemsHtml: "我是一个带事件的Container",
+        cls: "orig",
+        renderTo: "con3",
+        width: '30%',
+        height: 50,
+        margin: "10px 0 10px 10px",
+        listeners: {
+            // 监听afterRender事件
+            afterRender: function (container) {
+                alert("渲染完成")
+            }
+        }
+    })
+    </pre>
+    <button class="btn btn-primary" onclick="btn3()">实例化一个带事件的Container</button>
+    <div id="con3" class="renderDiv">
+        id=con3元素
+    </div>
+    <br>
+    <p>4. 重磅！继承和重写</p>
+    <pre>
+    // 注意，是define而不是create
+    Orz.define("CustomContainer", {
+        extend: "Orz.Container",  // 继承，如果Orz.Container模块还未被引入进来，此处会动态引入该模块
+        itemsHtml: "我是一个自定义的Container",
+        style: 'background-color: #FF8976',
+        margin: "10px 0 10px 10px",
+        width: '80%',
+        height: 30,
+    })
+
+    // 实例化一个自定义的组件并渲染
+    Orz.create("CustomContainer", {
+        renderTo: "con4",
+    })
+    </pre>
+    <button class="btn btn-primary" onclick="btn4()">实例化一个带事件的Container</button>
+    <div id="con4" class="renderDiv">
+        id=con4元素
+    </div>
+    <br>
+    <br><br>
+</div>
+<script type="text/javascript">
+
+    function btn1() {
+        Orz.create("Orz.Container", {
+            itemsHtml: "我是一个Container实例",
+            cls: "orig",  // 定义一个边框样式
+            renderTo: "con1",  // 装载到id为con1的dom元素中
+            width: '30%',
+            height: 50,
+            margin: "10px 0 10px 10px"
+        })
+    }
+
+    function btn2() {
+        Orz.create("Orz.Container", {
+            cls: "orig",
+            renderTo: "con2",
+            width: '80%',
+            height: 100,
+            margin: "10px 0 10px 10px",
+            items: [{
+                klass: "Orz.Container",
+                cls: "orig",
+                width: '80%',
+                height: 20,
+                margin: "10px",
+                itemsHtml: "我是一个内层Container",
+            }, {
+                klass: "Orz.Container",
+                cls: "orig",
+                width: '80%',
+                height: 20,
+                margin: "10px",
+                itemsHtml: "我是另一个内层Container",
+            }, ]
+        })
+    }
+
+    function btn3() {
+        Orz.create("Orz.Container", {
+            itemsHtml: "我是一个带事件的Container",
+            cls: "orig",
+            renderTo: "con3",
+            width: '30%',
+            height: 50,
+            margin: "10px 0 10px 10px",
+            listeners: {
+                afterRender: function (container) {
+                    alert("渲染完成")
+                }
+            }
+        })
+    }
+
+    function btn4() {
+        // 注意，是define而不是create
+        Orz.define("CustomContainer", {
+            extend: "Orz.Container",  // 继承，如果Orz.Container模块还未被引入进来，此处会动态引入该模块
+            itemsHtml: "我是一个自定义的Container",
+            style: 'background-color: #FF8976',
+            margin: "10px 0 10px 10px",
+            width: '80%',
+            height: 30,
+        })
+
+        // 实例化一个自定义的组件并渲染
+        Orz.create("CustomContainer", {
+            renderTo: "con4",
+        })
+    }
+
+</script>
 </body>
 </html>

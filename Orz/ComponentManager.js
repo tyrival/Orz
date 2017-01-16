@@ -143,7 +143,7 @@ Orz.ComponentManager = {
         config["klass"] = klass;
         var extend = config["extend"];
         if (Orz.ClassManager.stack[klass]) {
-            throw new Error("类")
+            throw new Error(klass + "类已存在，不可重复定义。");
         }
         Orz.ClassManager.stack[klass] = function () {
         };
@@ -189,7 +189,8 @@ Orz.ComponentManager = {
             cmpId = klass.replace(/\./g, "-") + "-" + Orz.ComponentManager.popNextSerial(klass);
             component.id = cmpId;
         }
-        if (component.hasOwnProperty("items")) {
+
+        if (component.items) {
             component.innerId = cmpId + "-" + "in";
         }
 

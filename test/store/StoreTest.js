@@ -10,7 +10,7 @@ Orz.define("UserStore", {
             {
                 name: "age",
                 mapper: function (item) {
-                    return item["age"] + 10;
+                    return item["age"] + 10;  // 年龄瞬间大10岁
                 },
                 type: "number"
             },
@@ -54,4 +54,4 @@ Orz.define("UserStore", {
     }
 })
 
-var a = Orz.create("UserStore");
+var testStore = Orz.create("UserStore");
