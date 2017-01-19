@@ -256,7 +256,7 @@ Orz.ComponentManager = {
             return;
         } else {
             var path = loadList.shift();
-            Orz.JsLoader.sync(path);
+            Orz.ScriptManager.require(path);
             Orz.ComponentManager._loadDescendants(loadList, klass, config, callback);
         }
     },

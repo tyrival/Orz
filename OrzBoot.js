@@ -22,14 +22,35 @@ Orz = {
 /**
  * Javascript动态加载
  */
-Orz.JsLoader = {
-    sync: function (url) {
+Orz.ScriptManager = {
+
+    IS_SYNC: false,
+    IS_ASYNC: true,
+
+    /**
+     * 动态加载js脚本
+     * @param url 脚本地址
+     * @param async 是否异步加载，默认：false
+     * @param callback 回调函数
+     */
+    require: function () {
+        var args = arguments;
+        if (!args || !args[0]) {
+            return;
+        }
+        var async = args[1] === true ? this.IS_ASYNC : this.IS_SYNC;
+        var callback = args[2] || null;
         $.ajax({
-            url: url,
-            async: false,
+            url: args[0],
+            async: async,
             dataType: "script",
+            complete: function (xhr, ts) {
+                if (callback) {
+                    callback(xhr, ts);
+                }
+            },
         });
-    }
+    },
 };
 
 /**
@@ -50,7 +71,7 @@ Orz.JsLoader = {
             /* 加载js文件 */
             var requires = json["Require"];
             for (var i = 0; i < requires.length; i++) {
-                Orz.JsLoader.sync(Orz.Application.AppContext + "/" + Orz.Application.Package + "/" + requires[i]);
+                Orz.ScriptManager.require(Orz.Application.AppContext + "/" + Orz.Application.Package + "/" + requires[i]);
             }
             console.warn("Javascript LoadEngine: " + requires + " loaded.");
         }

@@ -2,6 +2,7 @@
   "AppContext": "/Orz",
   "Package": "Orz",
   "Require": [
+    "require.js",
     "common/IEExtend.js",
     "ClassManager.js",
     "ComponentManager.js",
