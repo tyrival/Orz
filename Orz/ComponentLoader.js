@@ -1,13 +1,23 @@
 /* Created by tyrival on 2016/12/7. */
 var Orz = Orz || {};
 
+/*
+* ComponentLoader: 组件加载类
+* */
 Orz.ComponentLoader = {
 
-    config: 'components.json',
+    /*
+    * 组件的加载堆栈
+    * */
     componentsStack: null,
 
+    /*
+    * 初始化：
+    * 根据配置文件的路径查询到配置信息，存储入componentStack，
+    * 然后根据配置信息中，各组件的lazy属性依次加载（lazy==false）/不加载（lazy==true）组件
+    * */
     init: function () {
-        var url = Orz.Application.Package + "/" + this.config;
+        var url = Orz.Application.AppContext + "/" + Orz.Application.ComponentConfig;
         $.ajax({
             url: url,
             async: false,
@@ -46,23 +56,55 @@ Orz.ComponentLoader = {
             }
         });
     },
-    
+
+    /**
+     * 根据组件名获取组件的资源url
+     * => 找到组件
+     *    => 组件未加载过，则返回组件url
+     *    => 已加载过，则return
+     * => 未找到，则重新加载一次配置文件，再查找框架自带组件
+     * => 未找到，尝试按照Namespace和AppRoot生成url，并返回
+     * @param className 类名
+     * @returns {string} 组件url
+     */
     getComponent: function (className) {
         var cmp = Orz.ComponentLoader.componentsStack[className];
+        var url;
         if (!cmp) {
-            Orz.ComponentLoader.init();
-            cmp = Orz.ComponentLoader.componentsStack[className];
+            var prefix = Orz.Application.Package + ".";
+            if (className.startsWith(prefix)) {
+                Orz.ComponentLoader.init();
+                cmp = Orz.ComponentLoader.componentsStack[className];
+                if (!cmp) {
+                    console.error("未找到类\"" + className + "\"");
+                    return;
+                }
+                if (cmp["loaded"] === true) {
+                    return;
+                }
+            } else {
+                prefix = Orz.Application.AppName + ".";
+                if (!className.startsWith(prefix)) {
+                    return;
+                }
+                url = className.replace(prefix, '').replace(/\./g, '/');
+            }
+        } else {
+            url = cmp["url"];
         }
-        if (!cmp || !cmp["url"]) {
-            console.error("未找到类\"" + className + "\"");
-            return;
-        }
-        if (cmp["loaded"] === true) {
-            return;
-        }
-        return Orz.Application.Package + "/" + cmp["url"];
+        return Orz.Application.Package + "/" + url;
     },
-}
 
-// 初始化ComponentLoader
-Orz.ComponentLoader.init();
+    /**
+     * 登记组件
+     * @param className
+     * @param res
+     */
+    regComponent: function (className, res) {
+        if (!className || !res) {
+            return;
+        }
+        res.loaded = true;
+        $.extend(Orz.ComponentLoader.componentsStack[className], res);
+    }
+}

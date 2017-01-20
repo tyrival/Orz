@@ -1,5 +1,19 @@
 var Orz = Orz || {};
 Orz.Array = {
+
+    removeItem: function (array, item) {
+        if (!array && array.length <= 0) {
+            return;
+        }
+        for (var i = 0; i < array.length; i++) {
+            var obj = array[i];
+            if (obj === item) {
+                array.splice(i, 1);
+                return;
+            }
+        }
+    },
+
     sortBySorters: function (array, rules) {
         if (!array instanceof Array) {
             throw new Error("排序对象不是数组");

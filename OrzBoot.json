@@ -1,12 +1,15 @@
 {
   "AppContext": "/Orz",
   "Package": "Orz",
+  "AppRoot": "app",
+  "AppName": "App",
+  "ComponentConfig": "ComponentConfig.json",
   "Require": [
-    "require.js",
-    "common/IEExtend.js",
-    "ClassManager.js",
-    "ComponentManager.js",
-    "DataBindManager.js",
-    "ComponentLoader.js"
+    "Orz/require.js",
+    "Orz/common/IEExtend.js",
+    "Orz/ClassManager.js",
+    "Orz/ComponentManager.js",
+    "Orz/DataBindManager.js",
+    "Orz/ComponentLoader.js"
   ]
 }

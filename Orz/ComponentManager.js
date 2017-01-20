@@ -164,7 +164,7 @@ Orz.ComponentManager = {
         var config = arguments[1] ? arguments[1] : {};
         config["klass"] = klass;
         var decendants = Orz.ComponentManager._getDescendantsLoadList(config);
-        Orz.ComponentManager._loadDescendants(decendants, klass, config);
+        Orz.ComponentManager._loadDescendants(decendants, klass, config, null);
         return Orz.ComponentManager._doCreate(klass, config);
     },
 
@@ -218,9 +218,11 @@ Orz.ComponentManager = {
         if (!component["isSubItem"]) {
             if (component["renderTo"]) {
                 component.render();
+                if (this.registerEvents) {
+                    this.registerEvents();
+                }
             }
         }
-
         return component;
     },
 
@@ -251,12 +253,19 @@ Orz.ComponentManager = {
      * @param loadList
      * @private
      */
-    _loadDescendants: function (loadList, klass, config) {
+    _loadDescendants: function (loadList, klass, config, callback) {
         if (!loadList || loadList.length <= 0) {
+            if (callback) {
+                callback(klass, config);
+            }
             return;
         } else {
             var path = loadList.shift();
-            Orz.ScriptManager.require(path);
+            Orz.ScriptManager.require(path, false, [klass, path], function (param, xhr, ts) {
+                var klass = param[0];
+                var url = param[1];
+                Orz.ComponentLoader.regComponent(klass, { url: url });
+            });
             Orz.ComponentManager._loadDescendants(loadList, klass, config, callback);
         }
     },

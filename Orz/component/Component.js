@@ -23,6 +23,10 @@ Orz.define("Orz.Component", {
 
     width: null,  // 宽度
 
+    innerHtml: null,  // 内部html
+
+    itemsHtml: null,  // 子组件html
+
     margin: 0,
 
     padding: 0,
@@ -239,6 +243,28 @@ Orz.define("Orz.Component", {
     },
 
     /**
+     * 增加子组件
+     * @param item
+     */
+    addItem: function (item) {
+        this.items.add(item);
+        this.itemsHtml += item.html;
+        Orz.ComponentManager.registerSub(item.id, this.id);
+        $('#' + this.id).replaceWith(this.generateHtml());
+    },
+
+    /**
+     * 删除子组件
+     * @param item
+     */
+    removeItem: function (item) {
+        Orz.Array.removeItem(this.items, item);
+        this.itemsHtml = this.itemsHtml.replace(item.html, "");
+        $('#' + this.id).replaceWith(this.generateHtml());
+        item.destroy();
+    },
+
+    /**
      * 渲染
      * @Param OrzId / DomId
      * @Param [position]
@@ -323,9 +349,27 @@ Orz.define("Orz.Component", {
         if (typeof(this.listeners.beforeInit) == 'function') {
             this.listeners.beforeInit(this);
         }
+
         this.generateHtml();
+
         if (typeof(this.listeners.afterInit) == 'function') {
             this.listeners.afterInit(this);
+        }
+    },
+
+    /**
+     * 注册事件
+     */
+    registerEvents: function () {
+        var events = this.listeners;
+        if (!events && events.length <= 0) {
+            return;
+        }
+        for (var i = 0; i < events.length; i++) {
+            var ev = events[i];
+            $.each(ev, function (name, value) {
+                $('#' + this.id).on(name, this, value);
+            })
         }
     },
 
@@ -442,22 +486,14 @@ Orz.define("Orz.Component", {
     /* ===================================== Event ========================================= */
 
     listeners: {
-        beforeInit: function (component) {
-        },
-        afterInit: function (component) {
-        },
-        beforeRender: function (component) {
-        },
-        afterRender: function (component) {
-        },
-        beforeChange: function (component) {
-        },
-        afterChange: function (component) {
-        },
-        beforeDestroy: function (component) {
-        },
-        afterDestroy: function (component) {
-        },
+        beforeInit: Orz.emptyFn,
+        afterInit: Orz.emptyFn,
+        beforeRender: Orz.emptyFn,
+        afterRender: Orz.emptyFn,
+        beforeChange: Orz.emptyFn,
+        afterChange: Orz.emptyFn,
+        beforeDestroy: Orz.emptyFn,
+        afterDestroy: Orz.emptyFn,
     },
 
 });
