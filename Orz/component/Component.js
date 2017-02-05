@@ -196,26 +196,6 @@ Orz.define("Orz.Component", {
         return !!this.display;
     },
 
-    hide: function () {
-        this.display = false;
-        var e = $("#" + this.id);
-        if (e) {
-            e.removeClass("show");
-            e.removeClass("hide");
-            e.addClass("hide");
-        }
-    },
-
-    show: function () {
-        this.display = true;
-        var e = $("#" + this.id);
-        if (e) {
-            e.removeClass("hide");
-            e.removeClass("show");
-            e.addClass("show");
-        }
-    },
-
     getCls: function () {
         return this.cls;
     },
@@ -239,6 +219,26 @@ Orz.define("Orz.Component", {
         var e = $("#" + this.id);
         if (e) {
             e.css(style, value);
+        }
+    },
+
+    hide: function () {
+        this.display = false;
+        var e = $("#" + this.id);
+        if (e) {
+            e.removeClass("show");
+            e.removeClass("hide");
+            e.addClass("hide");
+        }
+    },
+
+    show: function () {
+        this.display = true;
+        var e = $("#" + this.id);
+        if (e) {
+            e.removeClass("hide");
+            e.removeClass("show");
+            e.addClass("show");
         }
     },
 

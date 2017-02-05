@@ -10,8 +10,6 @@ Orz.define("Orz.Grid", {
 
     store: null,
 
-    cls: null,  // class
-
     data: null,
 
     width: null,
@@ -24,45 +22,63 @@ Orz.define("Orz.Grid", {
 
     lockHead: true,
 
-
-    /**
-     * {
-     *     id: "col-1",
-     *     index: 0,
-     *     text: "姓名",
-     *     width: 200px | "20%",
-     *     dataIndex: "name",
-     *     textAlign: "left" | "right" | "center",
-     *     cls: "abc",
-     *     style: "font-size: 16px",
-     *     disabled: false,
-     *     html: "<button onclick='submit()'>submit</button>",
-     *     flex: true | false,
-     *     format: function(model) { return model.name + "-test"; },
-     *     hidden: true | false
-     *     cellPadding: 0 | "0 0 0 0",
-     *     textMargin: 0 | "0 0 0 0",
-     *     TODO 考虑增加一个组件
-     * }
-     */
     columns: [],
 
+    columnArray: [],
 
     /* ================================== Method ================================== */
 
     generateHtml: function () {
-        this.html =
-            "<div id='" + this.id + "' " + "class='" + this._getCompositeCls() +  "' " +
-            "style='" + this._getCompositeStyle() + "' " + this._getCompositeProp() + ">" +
-            "<div id='" + this.innerId + "'>" +
-            this.getData() +
-            "</div>" +
-            "</div>";
+
+        var me = this;
+        var cols = me.columns;
+        if (!cols || cols.length <= 0) {
+            return;
+        }
+
+        if (!me.data) {
+            me.data = me.store.data;
+        }
+
+        /*
+         * 遍历this.columns，通过配置生成Orz.grid.Column实例，生成各列的html数组
+         * 遍历数组，拼出table的th和td的html代码
+         * */
+        var tmpTh = "<tr>";
+        var tmpTd = new Array(me.data.length);
+        for (var i = 0; i < cols.length; i++) {
+            var col = cols[i];
+            var item = Orz.create("Orz.grid.Column", col);
+            item.generateTd(me.data);
+            item.setGrid(me);
+            me.columnArray.push(item);
+
+            tmpTh += item.getThHtml();
+
+            var tdHtml = item.getTdHtml();
+            for (var j = 0; j < tdHtml.length; j++) {
+                var td = tdHtml[j];
+                if (!tmpTd[j]) {
+                    tmpTd[j] = "<tr>";
+                }
+                tmpTd[j] += td;
+                if (i == cols.length) {
+                    tmpTd[j] += "</tr>";
+                }
+            }
+        }
+        tmpTh += "</tr>";
+
+        me.html =
+            "<table id='" + me.id + "' " + "class='" + me._getCompositeCls() + "' " +
+            "style='" + me._getCompositeStyle() + "' " + me._getCompositeProp() + ">" +
+            "<thead>" + tmpTh.toString() + "</thead>" +
+            "<tbody id='" + me.innerId + "'>" +
+            tmpTd.toString() +
+            "</tbody>" +
+            "</table>";
     },
 
-    _handlerColumn: function () {
-
-    },
 
     /* ================================== Event ================================== */
 
